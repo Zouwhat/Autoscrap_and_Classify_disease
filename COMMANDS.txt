@@ -1,0 +1,134 @@
+================================================================
+คำสั่งสำหรับรัน Thai News Processing Pipeline v2.0
+================================================================
+
+[1] รันแบบปกติ (ใช้ config.json)
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py
+
+
+[2] ตรวจสอบ config ก่อนรัน (Dry Run)
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --dry-run
+
+คำอธิบาย:
+- โหลดและ validate config.json
+- แสดงสรุป configuration
+- ไม่รัน pipeline จริง
+- ใช้เพื่อเช็คว่า config ถูกต้องหรือไม่
+
+
+[3] รันพร้อม Debug Logging (Verbose Mode)
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --verbose
+
+หรือ
+
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py -v
+
+คำอธิบาย:
+- เปิด debug logging แสดงรายละเอียดการทำงานมากขึ้น
+- แสดงข้อมูลการ classify และ extract แต่ละ record
+- เหมาะสำหรับ debug เมื่อเจอปัญหา
+
+
+[4] ใช้ Config File อื่น
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --config custom_config.json
+
+คำอธิบาย:
+- ระบุไฟล์ config เอง แทนที่จะใช้ config.json
+- เหมาะสำหรับทดสอบ config หลายแบบ
+
+
+[5] Dry Run + Verbose (เช็ค config แบบละเอียด)
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --dry-run --verbose
+
+
+[6] รันด้วย Custom Config + Verbose
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --config custom_config.json --verbose
+
+
+[7] ดูคำสั่งที่มีทั้งหมด (Help)
+----------------------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --help
+
+
+================================================================
+ตัวอย่างการใช้งานจริง
+================================================================
+
+สถานการณ์ 1: ทดสอบครั้งแรก
+--------------------------------------------------
+1. เช็ค config ก่อน:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --dry-run
+
+2. ถ้า config OK ให้รันจริง:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py
+
+
+สถานการณ์ 2: Debug เมื่อเจอปัญหา
+--------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --verbose
+
+
+สถานการณ์ 3: ทดสอบ Config หลายแบบ
+--------------------------------------------------
+1. สร้าง config_typhoon.json (ใช้ Typhoon)
+2. สร้าง config_ollama.json (ใช้ Ollama)
+
+3. ทดสอบ Typhoon:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --config config_typhoon.json
+
+4. ทดสอบ Ollama:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --config config_ollama.json
+
+
+สถานการณ์ 4: ทดสอบ Config ใหม่แบบละเอียด
+--------------------------------------------------
+E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --config test_config.json --dry-run --verbose
+
+
+================================================================
+ไฟล์ Log และ Output
+================================================================
+
+ไฟล์ที่ระบบสร้าง:
+--------------------------------------------------
+logs/pipeline.log              - Log ไฟล์ของระบบ
+prepare_data_filled.csv        - Output: ข้อมูลทั้งหมดที่ผ่าน process
+heat_data.csv                  - Output: เฉพาะข้อมูลที่เกี่ยวข้อง (relevant)
+base_heat_map.csv              - Database: ข้อมูลสะสมทั้งหมด
+backups/base_heat_map_backup_* - Backup ของ base_heat_map.csv
+
+
+วิธีดู Log:
+--------------------------------------------------
+type logs\pipeline.log         (Windows CMD)
+cat logs/pipeline.log          (Git Bash)
+notepad logs\pipeline.log      (เปิดด้วย Notepad)
+
+
+================================================================
+Tips & Tricks
+================================================================
+
+1. เช็ค config ก่อนรันเสมอ:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py --dry-run
+
+2. ใช้ verbose เมื่อ debug:
+   E:\SS5_internship\env_job\Scripts\python.exe pipeline_runner.py -v
+
+3. Backup config ก่อนแก้ไข:
+   copy config.json config.json.backup
+
+4. ดู log file เมื่อเจอปัญหา:
+   type logs\pipeline.log
+
+5. ทดสอบกับ input file เล็กๆ ก่อน:
+   - แก้ data_paths.input_file ใน config.json
+   - ชี้ไปที่ไฟล์ทดสอบขนาดเล็ก
+
+================================================================

@@ -1,0 +1,239 @@
+================================================================================
+PROJECT STRUCTURE FOR GITHUB UPLOAD
+================================================================================
+
+RECOMMENDED STRUCTURE (New - for GitHub)
+========================================
+
+Scrap_and_Classify/
+│
+├── main/
+│   ├── full_pipeline.py                (Main orchestrator)
+│   ├── google_alert_from_email.py      (Google Alerts fetcher)
+│   ├── smart_scraper.py                (Web scraper)
+│   ├── pipeline_runner.py              (LLM runner)
+│   ├── extraction_engine.py            (Extraction engine)
+│   ├── csv_processor.py                (CSV utilities)
+│   ├── llm_client.py                   (LLM client)
+│   ├── config_loader.py                (Config loader)
+│   ├── .env.example                    (Example .env - CLEAN)
+│   └── google_pass.example.json        (Example credentials - CLEAN)
+│
+├── schema/                             (Data schema definitions)
+│   ├── __init__.py
+│   └── heat_data_schema.py             (Heat data output schema)
+│
+├── validators/                         (Data validators)
+│   ├── __init__.py
+│   ├── base_validator.py
+│   ├── date_processor.py
+│   ├── numeric_validator.py
+│   ├── text_processor.py
+│   ├── boolean_mapper.py
+│   ├── multiclass_validator.py
+│   └── time_processor.py
+│
+├── config.json                         (Configuration - with ./ paths)
+├── README.md                           (Main documentation)
+├── README.txt                          (Quick start guide)
+├── SETUP_GUIDE.md                      (Installation guide)
+├── USAGE_GUIDE.md                      (Usage examples)
+├── COMMANDS.txt                        (Command reference)
+├── FILES_USAGE_SUMMARY.md              (File dependency info)
+├── LICENSE                             (MIT License)
+├── .gitignore                          (Git ignore rules)
+└── .github/                            (Optional - GitHub workflows)
+    └── workflows/
+        └── tests.yml                   (CI/CD - optional)
+
+
+WHAT GETS UPLOADED TO GITHUB:
+==============================
+
+✓ main/
+  ├── 8 Python files (full_pipeline, google_alert, smart_scraper, etc.)
+  ├── .env.example (CLEAN - no real values)
+  └── google_pass.example.json (CLEAN - no real values)
+
+✓ schema/
+  ├── __init__.py
+  └── heat_data_schema.py
+
+✓ validators/
+  ├── __init__.py
+  ├── base_validator.py
+  ├── date_processor.py
+  ├── numeric_validator.py
+  ├── text_processor.py
+  ├── boolean_mapper.py
+  ├── multiclass_validator.py
+  └── time_processor.py
+
+✓ Configuration & Documentation
+  ├── config.json (with ./ relative paths)
+  ├── README.md
+  ├── README.txt
+  ├── SETUP_GUIDE.md
+  ├── USAGE_GUIDE.md
+  ├── COMMANDS.txt
+  ├── FILES_USAGE_SUMMARY.md
+  ├── LICENSE
+  └── .gitignore
+
+
+WHAT DOES NOT GET UPLOADED:
+============================
+
+✗ .env (real API keys)
+✗ google_pass.gitignore (real credentials)
+✗ *.csv (data files)
+✗ backups/ (backup files)
+✗ logs/ (log files)
+✗ models/ (old ML models - not needed)
+✗ unused_01/ (unused files)
+✗ test_backups/
+✗ cleanup_backup/
+✗ __pycache__/
+✗ .venv/ or env/ (virtual environments)
+
+
+PATH STRUCTURE EXAMPLE:
+=======================
+
+Current (Absolute - does NOT work on other machines):
+  "input_file": "E:\\SS5_internship\\pj_vibe\\src\\Epic1_3\\prepare_data.csv"
+
+New (Relative - works anywhere):
+  "input_file": "./data/prepare_data.csv"
+
+Benefits of relative paths:
+  ✓ Works on any machine
+  ✓ Works in any directory
+  ✓ More portable
+  ✓ Follows best practices
+
+
+DIRECTORY LAYOUT ON GITHUB:
+===========================
+
+After cloning from GitHub, user will have:
+
+Scrap_and_Classify/
+│
+├── main/
+│   ├── *.py files
+│   ├── .env.example
+│   └── google_pass.example.json
+│
+├── schema/
+│   └── *.py files
+│
+├── validators/
+│   └── *.py files
+│
+├── config.json
+├── README.md
+├── LICENSE
+├── .gitignore
+└── [other docs]
+
+
+USER SETUP INSTRUCTIONS (After Cloning):
+=========================================
+
+1. Install dependencies:
+   pip install pandas requests beautifulsoup4 python-dotenv
+
+2. Create .env file (copy from .env.example):
+   cp main/.env.example main/.env
+   [Edit with real API key]
+
+3. Create credentials file (copy from example):
+   cp main/google_pass.example.json main/google_pass.gitignore
+   [Edit with real Gmail credentials]
+
+4. Create data directories:
+   mkdir data
+   mkdir backups
+   mkdir logs
+
+5. Run pipeline:
+   cd main
+   python full_pipeline.py --truncate-input
+
+
+KEY DIFFERENCES:
+================
+
+OLD (Current - Epic1_3 directory):
+  - All files mixed together
+  - Absolute paths in config
+  - Hard to clone and use
+
+NEW (GitHub - Clean structure):
+  - Organized in folders (main, schema, validators)
+  - Relative paths in config
+  - Example files for credentials
+  - Easy to clone and use
+  - Professional structure
+
+
+RELATIVE PATH MAPPING:
+======================
+
+When user clones repo and navigates to main/:
+
+config.json path: "./config.json"
+  → Points to: main/config.json
+
+data file path: "./data/prepare_data.csv"
+  → Points to: Scrap_and_Classify/data/prepare_data.csv
+
+schema path: "../schema/heat_data_schema.py"
+  → Points to: Scrap_and_Classify/schema/heat_data_schema.py
+
+validators path: "../validators/"
+  → Points to: Scrap_and_Classify/validators/
+
+
+FILES TO MODIFY FOR RELATIVE PATHS:
+===================================
+
+1. config.json
+   - Change all paths from absolute to "./data/filename.csv"
+
+2. config_loader.py
+   - Change path resolution to use relative paths
+   - Use Path(__file__).parent for base directory
+
+3. extraction_engine.py
+   - Change schema import to work with relative paths
+
+4. All Python files
+   - Ensure they use Path() from pathlib
+   - Use relative path resolution
+
+
+SUMMARY:
+========
+
+Upload to GitHub:
+  • main/ (8 .py files + examples)
+  • schema/ (Python module)
+  • validators/ (Python module)
+  • config.json (with ./ paths)
+  • Docs + LICENSE + .gitignore
+
+Do NOT upload:
+  • Real .env file
+  • Real credentials
+  • Data CSV files
+  • Backups or logs
+  • Old models
+
+Final result:
+  → Clean, portable, professional project structure
+  → Works on any machine with "pip install" + setup
+  → Follows GitHub best practices
+
+================================================================================
