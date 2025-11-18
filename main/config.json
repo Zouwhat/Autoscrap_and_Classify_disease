@@ -1,0 +1,302 @@
+{
+  "version": "1.0.0",
+  "last_updated": "2025-10-10",
+
+  "_comment_1": "═══════════════════════════════════════════════════════════════",
+  "_comment_2": "  ⚙️ BASIC SETTINGS - แก้ไขบ่อย (อยู่บนสุด)",
+  "_comment_3": "═══════════════════════════════════════════════════════════════",
+
+  "llm_provider": "typhoon",
+  "_llm_provider_note": "เลือก LLM: 'typhoon' หรือ 'ollama'",
+
+  "data_paths": {
+    "input_file": "../data/prepare_data.csv",
+    "base_file": "../data/base_heat_map.csv",
+    "output_filled_file": "../data/prepare_data_filled.csv",
+    "output_heat_data_file": "../data/heat_data.csv"
+  },
+
+  "processing": {
+    "mode": "incremental",
+    "_mode_note": "incremental = ข้าม record ที่ extract แล้ว, full = ประมวลผลทั้งหมดใหม่",
+    "batch_size": 20,
+    "skip_processed_records": true
+  },
+
+  "google_alert": {
+    "_note": "Google Alert Collection Configuration",
+    "scripts_path": "./google_alert_from_email.py",
+    "credentials_file": "./google_pass.gitignore",
+    "output_file": "../data/input_df.csv"
+  },
+
+  "_comment_4": "═══════════════════════════════════════════════════════════════",
+  "_comment_5": "  🤖 LLM CONFIGURATION",
+  "_comment_6": "═══════════════════════════════════════════════════════════════",
+
+  "llm_settings": {
+    "typhoon": {
+      "model": "typhoon-v2.1-12b-instruct",
+      "api_key_env": "TYPHOON_API_KEY",
+      "base_url": "https://api.opentyphoon.ai/v1/chat/completions",
+      "temperature": 0.1,
+      "max_tokens": 5000,
+      "timeout_seconds": 90,
+      "max_retries": 3,
+      "retry_delay_seconds": 2.0
+    },
+
+    "ollama": {
+      "model": "qwen3:8b",
+      "base_url": "http://localhost:11434",
+      "temperature": 0.1,
+      "max_tokens": 500,
+      "timeout_seconds": 60,
+      "max_retries": 3,
+      "retry_delay_seconds": 1.0
+    }
+  },
+
+  "_comment_7": "═══════════════════════════════════════════════════════════════",
+  "_comment_8": "  📊 COLUMNS CONFIGURATION - เปิด/ปิด columns ที่ต้องการ extract",
+  "_comment_9": "═══════════════════════════════════════════════════════════════",
+
+  "columns": {
+    "bulk_operations": {
+      "_note": "เปิด/ปิดทั้งกลุ่ม",
+      "enable_all_location": true,
+      "enable_all_medical": true,
+      "enable_all_temperature": true,
+      "enable_all_datetime": true,
+      "enable_all_basic_info": false
+    },
+    
+    "column_groups": {
+      "location": ["location_province", "location_district"],
+      "medical": ["victim_underlying_diseases"],
+      "temperature": ["weather_condition", "temperature(C°)"],
+      "datetime": ["incident_date", "incident_time"],
+      "basic_info": ["death_count", "injured_count", "missing_count", "death_cause", "victim_age_group", "victim_gender", "victim_occupation", "age"]
+    },
+
+    "schema": [
+      {
+        "name": "death_count",
+        "enabled": true,
+        "data_type": "integer",
+        "extraction_hint": "death_count: จำนวนผู้เสียชีวิต (ตัวเลขจำนวนเต็ม)",
+        "example": "2"
+      },
+      {
+        "name": "injured_count",
+        "enabled": true,
+        "data_type": "integer",
+        "extraction_hint": "injured_count: จำนวนผู้บาดเจ็บ (ตัวเลขจำนวนเต็ม)",
+        "example": "3"
+      },
+      {
+        "name": "missing_count",
+        "enabled": true,
+        "data_type": "integer",
+        "extraction_hint": "missing_count: จำนวนผู้สูญหาย (ตัวเลขจำนวนเต็ม)",
+        "example": "0"
+      },
+      {
+        "name": "location_province",
+        "enabled": true,
+        "data_type": "text",
+        "extraction_hint": "location_province: จังหวัดที่เกิดเหตุ (string, comma-separated ถ้ามีหลายจังหวัด)",
+        "example": "กรุงเทพฯ, นนทบุรี"
+      },
+      {
+        "name": "location_district",
+        "enabled": true,
+        "data_type": "text",
+        "extraction_hint": "location_district: อำเภอ/เขตที่เกิดเหตุ (string, comma-separated ถ้ามีหลายเขต)",
+        "example": "บางเขน, เมือง"
+      },
+      {
+        "name": "incident_date",
+        "enabled": true,
+        "data_type": "date",
+        "extraction_hint": "incident_date: วันที่เกิดเหตุ (string, format: DD/MM/YYYY)",
+        "example": "15/04/2024"
+      },
+      {
+        "name": "incident_time",
+        "enabled": true,
+        "data_type": "time",
+        "extraction_hint": "incident_time: เวลาที่เกิดเหตุ (string, format: HH:MM)",
+        "example": "14:30"
+      },
+      {
+        "name": "death_cause",
+        "enabled": true,
+        "data_type": "multiclass",
+        "extraction_hint": "death_cause: สาเหตุการเสียชีวิต (multi-category, allowed values: ช็อก, ขาดน้ำ, อากาศร้อน, ลมแดด, ฮีทสโตรก, โรคประจำตัว, ลมชัก, หัวใจล้มเหลว, หัวใจวาย, ดื่มเหล้า, โรคชรา, โควิด-19)",
+        "example": "ฮีทสโตรก, หัวใจล้มเหลว"
+      },
+      {
+        "name": "weather_condition",
+        "enabled": false,
+        "data_type": "text",
+        "extraction_hint": "weather_condition: สภาพอากาศ (string)",
+        "example": "อากาศร้อนจัด แดดแรง"
+      },
+      {
+        "name": "temperature(C°)",
+        "enabled": false,
+        "data_type": "text",
+        "extraction_hint": "temperature: อุณหภูมิ (TEXT) - เก็บเป็น JSON array ของ float เช่น [36.5, 38.0, 37.2] - ต้องเป็นตัวเลขทศนิยมเท่านั้น",
+        "example": "[38.5, 39.2]"
+      },
+      {
+        "name": "victim_age_group",
+        "enabled": true,
+        "data_type": "multiclass",
+        "extraction_hint": "victim_age_group: กลุ่มอายุผู้เสียชีวิต (category: เด็ก=0-12ปี, วัยรุ่น=13-19ปี, ผู้ใหญ่วัยหนุ่มสาว=20-35ปี, ผู้ใหญ่วัยกลางคน=36-59ปี, ผู้สูงอายุ=60ปีขึ้นไป)",
+        "example": "ผู้สูงอายุ, ผู้ใหญ่วัยหนุ่มสาว"
+      },
+      {
+        "name": "victim_gender",
+        "enabled": true,
+        "data_type": "multiclass",
+        "extraction_hint": "victim_gender: เพศผู้เสียชีวิต (category: ชาย, หญิง)",
+        "example": "ชาย"
+      },
+      {
+        "name": "victim_occupation",
+        "enabled": true,
+        "data_type": "text",
+        "extraction_hint": "victim_occupation: อาชีพผู้เสียชีวิต (string)",
+        "example": "เกษตรกร, ข้าราชการ, ครู, พยาบาล, คนงาน, ช่างก่อสร้าง, พ่อค้า, แม่ค้า"
+      },
+      {
+        "name": "victim_underlying_diseases",
+        "enabled": true,
+        "data_type": "text",
+        "extraction_hint": "victim_underlying_diseases: โรคประจำตัว (string, comma-separated)",
+        "example": "ความดันโลหิตสูง, เบาหวาน"
+      },
+      {
+        "name": "age",
+        "enabled": true,
+        "data_type": "text",
+        "extraction_hint": "age: เลขอายุผู้เสียชีวิต ตัวเลขจำนวนเต็ม ถ้ามีหลายคนให้ใส่ comma-separated ถ้าไม่ระบุให้ใส่ [] (string, comma-separated)",
+        "example": "[30], [30, 35], []"
+      }
+    ]
+  },
+
+  "_comment_10": "═══════════════════════════════════════════════════════════════",
+  "_comment_11": "  📝 PROMPTS CONFIGURATION",
+  "_comment_12": "═══════════════════════════════════════════════════════════════",
+
+  "prompts": {
+    "classification": {
+      "system_message": "คุณเป็นผู้เชี่ยวชาญในการจำแนกข่าวภาษาไทยเกี่ยวกับการเสียชีวิตของคนไทยในประเทศไทย จากโรคระบาดหรือภัยธรรมชาติที่เกี่ยวข้องกับความร้อนและความหนาว ตอบด้วยตัวเลข 0 หรือ 1 เท่านั้น",
+
+      "user_template": "กรุณาช่วยจำแนกประเภทของข่าวต่อไปนี้:\n\n[เกี่ยวข้อง - ตอบ 1] หากข่าวต้องเข้าเงื่อนไขทั้งหมด:\n1. เกิดขึ้นในประเทศไทย (ต้องระบุจังหวัดหรือสถานที่ในไทย)\n2. ผู้เสียชีวิตเป็นคนไทย (ชื่อ-สกุล ต้องเป็นภาษาไทย)\n3. สาเหตุการเสียชีวิตเกี่ยวข้องกับ:\n   - โรคระบาด: โควิด-19, ไข้หวัดใหญ่, ไข้เลือดออก, มาลาเรีย\n   - ความร้อนจัด: ฮีทสโตรก, ลมแดด, อุณหภูมิสูง, คลื่นความร้อน\n   - ความหนาวจัด: แช่แข็ง, อุณหภูมิต่ำ, พายุหิมะ\n   - ภัยธรรมชาติจากสภาพอากาศรุนแรง\n\n[สำคัญ] แม้จะเป็นข่าวบันเทิงหรือคนดัง หากเข้าเงื่อนไข 3 ข้อข้างต้น ให้ตอบ 1\n\n[ไม่เกี่ยวข้อง - ตอบ 0] หากข่าว:\n- เกิดในต่างประเทศ หรือผู้เสียชีวิตเป็นชาวต่างชาติ\n- อุบัติเหตุที่ไม่เกี่ยวกับสภาพอากาศ/โรค (เช่น สิงโต, เครื่องบินตก, รถชน)\n- ข่าวการเมือง, เศรษฐกิจ, กีฬา, บันเทิงทั่วไป\n- ข่าวที่ไม่มีการเสียชีวิต\n\nเนื้อหาข่าว:\n{content}\n\nกรุณาตอบด้วยตัวเลข 0 หรือ 1 เท่านั้น"
+    },
+
+    "extraction": {
+      "system_message": "คุณเป็นผู้เชี่ยวชาญในการสกัดข้อมูลจากข่าวภาษาไทยเกี่ยวกับการเสียชีวิตจากโรคระบาดและภัยธรรมชาติ ให้สกัดข้อมูลตามที่ระบุและตอบเป็น JSON format เท่านั้น ไม่ต้องเพิ่มคำอธิบายใดๆ",
+
+      "user_template": "วิเคราะห์ข่าวต่อไปนี้และสกัดข้อมูลในรูปแบบ JSON:\n\nเนื้อหาข่าว: {content}\n\nกรุณาสกัดข้อมูลต่อไปนี้:\n{fields_description}\n\nตอบเป็น JSON เท่านั้น ถ้าไม่พบข้อมูลให้ใส่ค่าว่าง\n\n=== ตัวอย่าง JSON ที่ต้องการ ===\n{example_json}\n\n===================\n\nตอบเป็น JSON format เท่านั้น:"
+    }
+  },
+
+  "_comment_13": "═══════════════════════════════════════════════════════════════",
+  "_comment_14": "  🔧 ADVANCED SETTINGS - แก้ไขเฉพาะเมื่อจำเป็น",
+  "_comment_15": "═══════════════════════════════════════════════════════════════",
+
+  "advanced": {
+    "base_database": {
+      "enabled": true,
+      "create_if_not_exists": true,
+      "deduplication_key": "url",
+      "backup_before_update": true,
+      "backup_dir": "../backups"
+    },
+
+    "processing_details": {
+      "max_concurrent_requests": 3,
+      "enable_checkpoint": true,
+      "checkpoint_interval": 50,
+      "state_file": "extraction_state.json",
+      "retry_failed_items": true,
+      "max_item_retries": 2,
+      "retry_delay_seconds": 2.0,
+      "max_error_rate": 0.15,
+      "progress_reporting_interval": 5
+    },
+
+    "validation": {
+      "strict_mode": false,
+      "allow_empty_values": true,
+      "generate_missing_columns": true,
+      "skip_validation_on_null": true
+    },
+
+    "output_options": {
+      "encoding": "utf-8",
+      "overwrite_existing": true,
+      "preserve_column_order": true,
+      "include_metadata_columns": true,
+      "metadata_columns": ["processing_status", "extracted_at", "is_relevant"]
+    },
+
+    "logging": {
+      "level": "INFO",
+      "console": true,
+      "file": true,
+      "filename": "../logs/pipeline.log",
+      "max_size_mb": 10,
+      "backup_count": 5,
+      "detailed_logging": true
+    },
+
+    "column_validation_rules": {
+      "provinces": [
+        "กรุงเทพฯ", "กรุงเทพมหานคร", "กระบี่", "กาญจนบุรี", "กาฬสินธุ์", "กำแพงเพชร",
+        "ขอนแก่น", "จันทบุรี", "ฉะเชิงเทรา", "ชลบุรี", "ชัยนาท", "ชัยภูมิ", "ชุมพร",
+        "เชียงราย", "เชียงใหม่", "ตรัง", "ตราด", "ตาก", "นครนายก", "นครปฐม", "นครพนม",
+        "นครราชสีมา", "นครศรีธรรมราช", "นครสวรรค์", "นนทบุรี", "นราธิวาส", "น่าน",
+        "บึงกาฬ", "บุรีรัมย์", "ปทุมธานี", "ประจวบคีรีขันธ์", "ปราจีนบุรี", "ปัตตานี",
+        "พระนครศรีอยุธยา", "พะเยา", "พังงา", "พัทลุง", "พิจิตร", "พิษณุโลก", "เพชรบุรี",
+        "เพชรบูรณ์", "แพร่", "ภูเก็ต", "มหาสารคาม", "มุกดาหาร", "แม่ฮ่องสอน", "ยะลา",
+        "ยโสธร", "ร้อยเอ็ด", "ระนอง", "ระยอง", "ราชบุรี", "ลพบุรี", "ลำปาง", "ลำพูน",
+        "เลย", "ศรีสะเกษ", "สกลนคร", "สงขลา", "สตูล", "สมุทรปราการ", "สมุทรสงคราม",
+        "สมุทรสาคร", "สระแก้ว", "สระบุรี", "สิงห์บุรี", "สุโขทัย", "สุพรรณบุรี", "สุราษฎร์ธานี",
+        "สุรินทร์", "หนองคาย", "หนองบัวลำภู", "อ่างทอง", "อำนาจเจริญ", "อุดรธานี",
+        "อุตรดิตถ์", "อุทัยธานี", "อุบลราชธานี"
+      ],
+
+      "regions": [
+        "ภาคเหนือ", "ภาคกลางและตะวันตก", "ภาคตะวันออกเฉียงเหนือ",
+        "ภาคตะวันออก", "ภาคใต้"
+      ],
+
+      "genders": ["ชาย", "หญิง", "ไม่ระบุ"],
+
+      "status": ["เสียชีวิต", "รอดชีวิต", "ไม่ระบุ"],
+
+      "months": [
+        "มกราคม", "กุมภาพันธ์", "มีนาคม", "เมษายน", "พฤษภาคม", "มิถุนายน",
+        "กรกฎาคม", "สิงหาคม", "กันยายน", "ตุลาคม", "พฤศจิกายน", "ธันวาคม"
+      ],
+
+      "numeric_ranges": {
+        "age": {"min": 0, "max": 120},
+        "year": {"min": 2020, "max": 2030},
+        "temperature_env": {"min": -10, "max": 60},
+        "temperature_body": {"min": 30, "max": 45}
+      },
+
+      "boolean_mappings": {
+        "true_values": ["มี", "ใช่", "1", "true", "มีอาการ", "มีประวัติ", "ป่วย"],
+        "false_values": ["ไม่มี", "ไม่ใช่", "0", "false", "ไม่ป่วย", "ปกติ", "สุขภาพดี"]
+      }
+    }
+  }
+}
